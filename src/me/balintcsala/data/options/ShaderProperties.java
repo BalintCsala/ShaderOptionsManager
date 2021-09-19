@@ -1,5 +1,9 @@
-package me.balintcsala.data;
+package me.balintcsala.data.options;
 
+import me.balintcsala.ui.ProgressBarDialog;
+
+import javax.swing.*;
+import java.awt.*;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -25,15 +29,17 @@ public class ShaderProperties {
     private ShaderProperties() {
     }
 
-    private void parseOption(String name, String defaultValue, String comment, File file, int line) {
+    private void parseOption(Option.Type type, String name, String defaultValue, String comment, File file, int line) {
         if (options.containsKey(name)) {
             Option option = options.get(name);
             option.addLocation(file, line);
             options.replace(name, option);
         } else {
             Matcher matcher = VALUE_LIST.matcher(comment);
-            String[] values = matcher.find() ? matcher.group(1).split(" ") : null;
-            Option option = new Option(defaultValue, values);
+            String[] values = type == Option.Type.BOOLEAN ? new String[] { "ON", "OFF" } :
+                    matcher.find() ? matcher.group(1).split(" ") : new String[0];
+            Option option = new Option(type, name, defaultValue, values, comment);
+            option.addLocation(file, line);
             options.put(name, option);
         }
     }
@@ -44,18 +50,18 @@ public class ShaderProperties {
             String line;
             int lineNumber = 0;
             while ((line = reader.readLine()) != null) {
-                line = line.strip();
+                line = line.trim();
                 Matcher matcher;
                 if ((matcher = OPTION_DEFAULT_VALUE_COMMENT.matcher(line)).find()) {
-                    parseOption(matcher.group(1), matcher.group(2), matcher.group(3), file, lineNumber);
+                    parseOption(Option.Type.VALUE, matcher.group(1), matcher.group(2), matcher.group(3), file, lineNumber);
                 } else if ((matcher = OPTION_BOOLEAN_TRUE_COMMENT.matcher(line)).find()) {
-                    parseOption(matcher.group(1), "TRUE", matcher.group(2), file, lineNumber);
+                    parseOption(Option.Type.BOOLEAN, matcher.group(1), "ON", matcher.group(2), file, lineNumber);
                 } else if ((matcher = OPTION_BOOLEAN_FALSE_COMMENT.matcher(line)).find()) {
-                    parseOption(matcher.group(1), "FALSE", matcher.group(2), file, lineNumber);
+                    parseOption(Option.Type.BOOLEAN, matcher.group(1), "OFF", matcher.group(2), file, lineNumber);
                 } else if ((matcher = OPTION_BOOLEAN_TRUE.matcher(line)).find()) {
-                    parseOption(matcher.group(1), "TRUE", "", file, lineNumber);
+                    parseOption(Option.Type.BOOLEAN, matcher.group(1), "ON", "", file, lineNumber);
                 } else if ((matcher = OPTION_BOOLEAN_FALSE.matcher(line)).find()) {
-                    parseOption(matcher.group(1), "FALSE", "", file, lineNumber);
+                    parseOption(Option.Type.BOOLEAN, matcher.group(1), "OFF", "", file, lineNumber);
                 }
                 lineNumber++;
             }
@@ -85,11 +91,9 @@ public class ShaderProperties {
         ShaderProperties properties = new ShaderProperties();
 
         try {
-            Files.walk(Paths.get("tmp"))
-                    .filter(path -> path.toString().endsWith(".vsh") || path.toString().endsWith(".fsh"))
-                    .forEach(path -> {
-                        properties.parseShader(path.toFile());
-                    });
+            Files.walk(Paths.get("tmp", "shaders"))
+                    .filter(path -> !path.toFile().isDirectory())
+                    .forEach(path -> properties.parseShader(path.toFile()));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -111,6 +115,7 @@ public class ShaderProperties {
                 propertyLine.setLength(0);
             }
 
+            reader.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -118,4 +123,62 @@ public class ShaderProperties {
         return properties;
     }
 
+    public void save() {
+        int total = options.size();
+        ProgressBarDialog progressBarDialog = new ProgressBarDialog("Saving options");
+
+        int applied = 0;
+        for (Option option : options.values()) {
+            option.apply();
+            applied++;
+            progressBarDialog.updateProgress((double) applied / total);
+        }
+        progressBarDialog.dispose();
+
+        JDialog dialog = new JDialog();
+        dialog.setLayout(new GridLayout(6, 1));
+        dialog.setAlwaysOnTop(true);
+        dialog.setTitle("Success");
+
+        JPanel row1 = new JPanel();
+        row1.setLayout(new BoxLayout(row1, BoxLayout.X_AXIS));
+        row1.add(Box.createHorizontalGlue());
+        row1.add(new JLabel("Settings applied!"));
+        row1.add(Box.createHorizontalGlue());
+        dialog.add(row1);
+
+        JPanel row2 = new JPanel();
+        row2.setLayout(new BoxLayout(row2, BoxLayout.X_AXIS));
+        row2.add(Box.createHorizontalGlue());
+        row2.add(new JLabel("But you're still hungry."));
+        row2.add(Box.createHorizontalGlue());
+        dialog.add(row2);
+
+        JPanel emptyRow = new JPanel();
+        dialog.add(emptyRow);
+
+        JPanel row4 = new JPanel();
+        row4.setLayout(new BoxLayout(row4, BoxLayout.X_AXIS));
+        row4.add(Box.createHorizontalGlue());
+        row4.add(new JLabel("Open the game and select the shaderpack with the modified_ prefix"));
+        row4.add(Box.createHorizontalGlue());
+        dialog.add(row4);
+
+        JPanel emptyRow2 = new JPanel();
+        dialog.add(emptyRow2);
+
+        JPanel buttonRow = new JPanel();
+        buttonRow.setLayout(new BoxLayout(buttonRow, BoxLayout.X_AXIS));
+        buttonRow.add(Box.createHorizontalGlue());
+        JButton okButton = new JButton("Ok");
+        okButton.addActionListener(e -> dialog.dispose());
+        buttonRow.add(okButton);
+        buttonRow.add(Box.createHorizontalGlue());
+        dialog.add(buttonRow);
+
+
+        dialog.setSize(450, 140);
+        dialog.setLocationRelativeTo(null);
+        dialog.setVisible(true);
+    }
 }

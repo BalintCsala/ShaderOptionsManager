@@ -1,20 +1,76 @@
-package me.balintcsala.data;
+package me.balintcsala.data.options;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class Option {
 
-    public String currentValue;
-    public String[] values;
+    enum Type {
+        BOOLEAN,
+        VALUE,
+    }
+
+    public Type type;
+    public String name;
+    public String defaultValue;
+    public int index;
+    public ArrayList<String> values;
     public ArrayList<FileLocation> locations = new ArrayList<>();
 
-    public Option(String defaultValue, String[] values) {
-        this.currentValue = defaultValue;
-        this.values = values;
+    private String comment;
+
+    public Option(Type type, String name, String defaultValue, String[] values, String comment) {
+        this.type = type;
+        this.name = name;
+        this.defaultValue = defaultValue;
+        this.comment = comment;
+
+        this.values = new ArrayList<>(Arrays.asList(values));
+        if (!this.values.contains(defaultValue))
+            this.values.add(0, defaultValue);
+
+        index = this.values.indexOf(defaultValue);
     }
 
     public void addLocation(File file, int line) {
         locations.add(new FileLocation(file, line));
+    }
+
+    public String getCurrentValue() {
+        return values.get(index);
+    }
+
+    public void nextValue() {
+        index = (index + 1) % values.size();
+    }
+
+    public void previousValue() {
+        index = ((index - 1) % values.size() + values.size()) % values.size();
+    }
+
+    public void reset() {
+        index = this.values.indexOf(defaultValue);
+    }
+
+    public void apply() {
+        for (FileLocation location : locations) {
+            Path path = location.file.toPath();
+            try {
+                List<String> lines = Files.readAllLines(path);
+                if (type == Type.BOOLEAN) {
+                    lines.set(location.line, (getCurrentValue().equals("ON") ? "" : "// ") + "#define " + name + " // " + comment);
+                } else {
+                    lines.set(location.line, "#define " + name + " " + getCurrentValue() + " // " + comment);
+                }
+                Files.write(path, lines);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }

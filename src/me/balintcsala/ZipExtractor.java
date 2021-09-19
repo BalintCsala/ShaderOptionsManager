@@ -1,4 +1,4 @@
-package me.balintcsala.data;
+package me.balintcsala;
 
 import java.io.File;
 import java.io.FileInputStream;

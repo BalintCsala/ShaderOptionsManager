@@ -1,4 +1,4 @@
-package me.balintcsala.data;
+package me.balintcsala.data.options;
 
 import java.io.File;
 
