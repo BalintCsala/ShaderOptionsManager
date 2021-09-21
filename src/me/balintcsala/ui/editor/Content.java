@@ -159,6 +159,7 @@ public class Content extends JPanel {
             if (i % 2 == 0) {
                 row = new JPanel();
                 row.setLayout(new GridLayout(1, 2, 16, 0));
+                row.setAlignmentX(LEFT_ALIGNMENT);
                 row.setOpaque(false);
             }
             Screen.Entry entry = currentScreen.getEntries().get(i);
@@ -198,6 +199,9 @@ public class Content extends JPanel {
             }
         }
         if (row != null) {
+            JPanel empty = new JPanel();
+            empty.setOpaque(false);
+            row.add(empty);
             buttons.add(row);
         }
 
