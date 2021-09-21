@@ -15,7 +15,6 @@ import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -171,7 +170,7 @@ public class Content extends JPanel {
                         populate();
                     }));
                     break;
-                case VALUE:
+                case OPTION:
                     Option option = shaderProperties.getOption(entry.name);
                     row.add(new Button(currentLanguage.getOptionName(entry.name) + ": " + option.getCurrentValue(), (label, button) -> {
                         if (button == Button.MouseButton.LEFT) {
@@ -195,7 +194,11 @@ public class Content extends JPanel {
 
             if (i % 2 == 1) {
                 buttons.add(row);
+                row = null;
             }
+        }
+        if (row != null) {
+            buttons.add(row);
         }
 
         revalidate();

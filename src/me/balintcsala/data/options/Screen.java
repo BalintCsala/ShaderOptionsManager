@@ -1,6 +1,8 @@
 package me.balintcsala.data.options;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -8,7 +10,7 @@ public class Screen {
 
     public enum EntryType {
         LINK,
-        VALUE,
+        OPTION,
         PROFILE,
         EMPTY,
         WILDCARD,
@@ -57,7 +59,7 @@ public class Screen {
         } else if (WILDCARD_ENTRY.matcher(description).find()) {
             entries.add(new Entry(EntryType.WILDCARD));
         } else if ((matcher = VALUE_ENTRY.matcher(description)).find()) {
-            entries.add(new Entry(EntryType.VALUE, matcher.group(1)));
+            entries.add(new Entry(EntryType.OPTION, matcher.group(1)));
         }
     }
 
@@ -91,5 +93,15 @@ public class Screen {
         }
 
         return screen;
+    }
+
+    public void replaceWildcard(HashSet<String> remainingOptions) {
+        for (int i = entries.size() - 1; i >= 0; i--) {
+            Entry entry = entries.get(i);
+            if (entry.type == EntryType.WILDCARD) {
+                entries.remove(i);
+                remainingOptions.forEach(option -> addEntry(option));
+            }
+        }
     }
 }

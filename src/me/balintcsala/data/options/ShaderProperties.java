@@ -11,6 +11,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -120,6 +122,25 @@ public class ShaderProperties {
             e.printStackTrace();
         }
 
+        // Parse wildcards
+        HashSet<String> processedOptions = new HashSet<>();
+        for (Screen screen : properties.screens.values()) {
+            for (Screen.Entry entry : screen.getEntries()) {
+                if (entry.type == Screen.EntryType.OPTION) {
+                    processedOptions.add(entry.name);
+                }
+            }
+        }
+        HashSet<String> remainingOptions = new HashSet<>();
+        for (Option option : properties.options.values()) {
+            if (!processedOptions.contains(option.name)) {
+                remainingOptions.add(option.name);
+            }
+        }
+        for (Screen screen : properties.screens.values()) {
+            screen.replaceWildcard(remainingOptions);
+        }
+
         return properties;
     }
 
@@ -175,7 +196,6 @@ public class ShaderProperties {
         buttonRow.add(okButton);
         buttonRow.add(Box.createHorizontalGlue());
         dialog.add(buttonRow);
-
 
         dialog.setSize(450, 140);
         dialog.setLocationRelativeTo(null);
