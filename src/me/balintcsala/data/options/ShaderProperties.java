@@ -181,4 +181,10 @@ public class ShaderProperties {
         dialog.setLocationRelativeTo(null);
         dialog.setVisible(true);
     }
+
+    public void reset() {
+        for (Option option : options.values()) {
+            option.reset();
+        }
+    }
 }

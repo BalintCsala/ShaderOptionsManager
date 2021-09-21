@@ -122,7 +122,8 @@ public class Content extends JPanel {
         footer.setOpaque(false);
         footer.setBorder(new EmptyBorder(0, 4, 0, 4));
         footer.add(new Button("Reset", (label, button) -> {
-            JOptionPane.showMessageDialog(null, "This feature isn't supported yet", "Missing feature", JOptionPane.INFORMATION_MESSAGE);
+            shaderProperties.reset();
+            populate();
         }));
         footer.add(new Button("Done", (label, button) -> {
             if (screenStack.isEmpty()) {
