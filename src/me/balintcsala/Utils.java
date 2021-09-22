@@ -1,9 +1,14 @@
 package me.balintcsala;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.CopyOption;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Locale;
+
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 public class Utils {
 
@@ -46,6 +51,26 @@ public class Utils {
         }
         if (!dir.delete()) {
             System.out.println("Couldn't delete directory " + dir);
+        }
+    }
+
+    public static void copyDirectory(Path dir, Path to) {
+        String[] list = dir.toFile().list();
+        if (list == null)
+            return;
+        for (String path : list) {
+            Path file = dir.resolve(path);
+            Path target = to.resolve(path);
+            if (file.toFile().isDirectory()) {
+                copyDirectory(file, target);
+            } else {
+                target.toFile().mkdirs();
+                try {
+                    Files.copy(file, target, REPLACE_EXISTING);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 

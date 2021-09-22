@@ -6,6 +6,7 @@ import me.balintcsala.data.options.Option;
 import me.balintcsala.data.options.Screen;
 import me.balintcsala.data.options.ShaderProperties;
 import me.balintcsala.ui.components.Button;
+import me.balintcsala.ui.components.Slider;
 import me.balintcsala.ui.components.Text;
 
 import javax.imageio.ImageIO;
@@ -16,7 +17,6 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -128,14 +128,11 @@ public class Content extends JPanel {
             if (screenStack.isEmpty()) {
                 shaderProperties.save();
 
-                try {
-                    Path target = Paths.get(Utils.getMinecraftPath().toString(), "shaderpacks", "modified_" + shaderpackName);
-                    if (target.toFile().exists())
-                        Utils.deleteDirectory(target.toFile());
-                    Files.copy(Paths.get("tmp"), target);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                Path target = Paths.get(Utils.getMinecraftPath().toString(), "shaderpacks", "modified_" + shaderpackName);
+                if (target.toFile().exists())
+                    Utils.deleteDirectory(target.toFile());
+                Utils.copyDirectory(Paths.get("tmp"), target);
+
             } else {
                 currentScreen = screenStack.pop();
                 populate();
@@ -173,14 +170,18 @@ public class Content extends JPanel {
                     break;
                 case OPTION:
                     Option option = shaderProperties.getOption(entry.name);
-                    row.add(new Button(currentLanguage.getOptionName(entry.name) + ": " + option.getCurrentValue(), (label, button) -> {
-                        if (button == Button.MouseButton.LEFT) {
-                            option.nextValue();
-                        } else {
-                            option.previousValue();
-                        }
-                        label.updateText(currentLanguage.getOptionName(entry.name) + ": " + option.getCurrentValue());
-                    }));
+                    if (shaderProperties.isSlider(entry.name)) {
+                        row.add(new Slider(currentLanguage.getOptionName(entry.name), option.values, option.values.indexOf(option.defaultValue), option::setValue));
+                    } else {
+                        row.add(new Button(currentLanguage.getOptionName(entry.name) + ": " + option.getCurrentValue(), (label, button) -> {
+                            if (button == Button.MouseButton.LEFT) {
+                                option.nextValue();
+                            } else {
+                                option.previousValue();
+                            }
+                            label.updateText(currentLanguage.getOptionName(entry.name) + ": " + option.getCurrentValue());
+                        }));
+                    }
                     break;
                 case EMPTY:
                     JPanel empty = new JPanel();

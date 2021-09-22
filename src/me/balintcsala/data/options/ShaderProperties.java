@@ -10,9 +10,10 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -24,9 +25,11 @@ public class ShaderProperties {
     private static final Pattern OPTION_BOOLEAN_TRUE = Pattern.compile("^#define\\s+(\\S+)");
     private static final Pattern OPTION_BOOLEAN_FALSE = Pattern.compile("^//(?:\\s+)?#define\\s+(\\S+)");
     private static final Pattern VALUE_LIST = Pattern.compile("(?<=\\[)(.+)(?=\\])");
+    private static final Pattern SLIDER_EXTRACTOR = Pattern.compile("sliders\\s*=\\s*(.+)$");
 
     private final HashMap<String, Option> options = new HashMap<>();
     private final HashMap<String, Screen> screens = new HashMap<>();
+    private ArrayList<String> sliders = new ArrayList<>();
 
     private ShaderProperties() {
     }
@@ -78,6 +81,12 @@ public class ShaderProperties {
         if (line.startsWith("screen")) {
             Screen screen = Screen.parseScreen(line);
             screens.put(screen.getName(), screen);
+        } else if (line.startsWith("sliders")) {
+            Matcher matcher = SLIDER_EXTRACTOR.matcher(line);
+            if (!matcher.find())
+                return;
+
+            sliders = new ArrayList<>(Arrays.asList(matcher.group(1).split(" ")));
         }
     }
 
@@ -87,6 +96,10 @@ public class ShaderProperties {
 
     public Option getOption(String name) {
         return options.get(name);
+    }
+
+    public boolean isSlider(String name) {
+        return sliders.contains(name);
     }
 
     public static ShaderProperties parseFiles() {

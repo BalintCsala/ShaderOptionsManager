@@ -53,6 +53,10 @@ public class Option {
         index = ((index - 1) % values.size() + values.size()) % values.size();
     }
 
+    public void setValue(String value) {
+        index = values.indexOf(value);
+    }
+
     public void reset() {
         index = this.values.indexOf(defaultValue);
     }
