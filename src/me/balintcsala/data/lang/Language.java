@@ -23,7 +23,7 @@ public class Language {
             String line;
             while ((line = reader.readLine()) != null) {
                 line = line.trim();
-                if (line.isEmpty())
+                if (line.startsWith("#") || line.isEmpty())
                     continue;
 
                 matcher = SUBSTITUTION_EXTRACTOR.matcher(line);

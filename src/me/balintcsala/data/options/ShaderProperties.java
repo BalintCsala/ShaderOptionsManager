@@ -10,22 +10,59 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.*;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class ShaderProperties {
 
-    private static final Pattern OPTION_DEFAULT_VALUE_COMMENT = Pattern.compile("^#define\\s+(\\S+)\\s+(\\S+)\\s+\\/\\/(.+)");
-    private static final Pattern OPTION_BOOLEAN_TRUE_COMMENT = Pattern.compile("^#define\\s+(\\S+)\\s+\\/\\/(.+)");
-    private static final Pattern OPTION_BOOLEAN_FALSE_COMMENT = Pattern.compile("^//(?:\\s+)?#define\\s+(\\S+)\\s+\\/\\/(.+)");
+    private static final Pattern OPTION_DEFAULT_VALUE_COMMENT = Pattern.compile("^#define\\s+(\\S+)\\s+(\\S+)\\s+//(.+)");
+    private static final Pattern OPTION_BOOLEAN_TRUE_COMMENT = Pattern.compile("^#define\\s+(\\S+)\\s+//(.+)");
+    private static final Pattern OPTION_BOOLEAN_FALSE_COMMENT = Pattern.compile("^//(?:\\s+)?#define\\s+(\\S+)\\s+//(.+)");
     private static final Pattern OPTION_BOOLEAN_TRUE = Pattern.compile("^#define\\s+(\\S+)");
     private static final Pattern OPTION_BOOLEAN_FALSE = Pattern.compile("^//(?:\\s+)?#define\\s+(\\S+)");
-    private static final Pattern VALUE_LIST = Pattern.compile("(?<=\\[)(.+)(?=\\])");
+    private static final Pattern CONST_OPTION = Pattern.compile("const\\s+\\S+\\s+(\\S+)\\s*=\\s*(-?\\d*\\.?\\d*);\\s*//(.+)");
+    private static final Pattern VALUE_LIST = Pattern.compile("(?<=\\[)(.+)(?=])");
     private static final Pattern SLIDER_EXTRACTOR = Pattern.compile("sliders\\s*=\\s*(.+)$");
+
+    private static final List<String> AVAILABLE_CONST_OPTIONS = Arrays.asList(
+            "shadowMapResolution",
+            "shadowDistance",
+            "shadowDistanceRenderMul",
+            "shadowIntervalSize",
+            "generateShadowMipmap",
+            "generateShadowColorMipmap",
+            "shadowHardwareFiltering",
+            "shadowHardwareFiltering0",
+            "shadowHardwareFiltering1",
+            "shadowtex0Mipmap",
+            "shadowtexMipmap",
+            "shadowtex1Mipmap",
+            "shadowcolor0Mipmap",
+            "shadowColor0Mipmap",
+            "shadowcolor1Mipmap",
+            "shadowColor1Mipmap",
+            "shadowtex0Nearest",
+            "shadowtexNearest",
+            "shadow0MinMagNearest",
+            "shadowtex1Nearest",
+            "shadow1MinMagNearest",
+            "shadowcolor0Nearest",
+            "shadowColor0Nearest",
+            "shadowColor0MinMagNearest",
+            "shadowcolor1Nearest",
+            "shadowColor1Nearest",
+            "shadowColor1MinMagNearest",
+            "wetnessHalflife",
+            "drynessHalflife",
+            "eyeBrightnessHalflife",
+            "centerDepthHalflife",
+            "sunPathRotation",
+            "ambientOcclusionLevel",
+            "superSamplingLevel",
+            "noiseTextureResolution"
+    );
 
     private final HashMap<String, Option> options = new HashMap<>();
     private final HashMap<String, Screen> screens = new HashMap<>();
@@ -57,7 +94,11 @@ public class ShaderProperties {
             while ((line = reader.readLine()) != null) {
                 line = line.trim();
                 Matcher matcher;
-                if ((matcher = OPTION_DEFAULT_VALUE_COMMENT.matcher(line)).find()) {
+                if ((matcher = CONST_OPTION.matcher(line)).find()) {
+                    if (!AVAILABLE_CONST_OPTIONS.contains(matcher.group(1)))
+                        continue;
+                    parseOption(Option.Type.VALUE, matcher.group(1), matcher.group(2), matcher.group(3), file, lineNumber);
+                } else if ((matcher = OPTION_DEFAULT_VALUE_COMMENT.matcher(line)).find()) {
                     parseOption(Option.Type.VALUE, matcher.group(1), matcher.group(2), matcher.group(3), file, lineNumber);
                 } else if ((matcher = OPTION_BOOLEAN_TRUE_COMMENT.matcher(line)).find()) {
                     parseOption(Option.Type.BOOLEAN, matcher.group(1), "ON", matcher.group(2), file, lineNumber);
@@ -80,6 +121,8 @@ public class ShaderProperties {
     private void parseShadersPropertiesLine(String line) {
         if (line.startsWith("screen")) {
             Screen screen = Screen.parseScreen(line);
+            if (screen == null)
+                return;
             screens.put(screen.getName(), screen);
         } else if (line.startsWith("sliders")) {
             Matcher matcher = SLIDER_EXTRACTOR.matcher(line);

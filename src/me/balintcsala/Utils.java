@@ -45,12 +45,12 @@ public class Utils {
                 deleteDirectory(file);
             } else {
                 if (!file.delete()) {
-                    System.out.println("Couldn't delete file " + file);
+                    System.err.println("Couldn't delete file " + file);
                 }
             }
         }
         if (!dir.delete()) {
-            System.out.println("Couldn't delete directory " + dir);
+            System.err.println("Couldn't delete directory " + dir);
         }
     }
 
