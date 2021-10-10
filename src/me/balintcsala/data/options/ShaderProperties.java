@@ -72,6 +72,10 @@ public class ShaderProperties {
     }
 
     private void parseOption(Option.Type type, String name, String defaultValue, String comment, File file, int line) {
+        parseOption(type, name, defaultValue, comment, file, line, false);
+    }
+
+    private void parseOption(Option.Type type, String name, String defaultValue, String comment, File file, int line, boolean constOption) {
         if (options.containsKey(name)) {
             Option option = options.get(name);
             option.addLocation(file, line);
@@ -80,7 +84,12 @@ public class ShaderProperties {
             Matcher matcher = VALUE_LIST.matcher(comment);
             String[] values = type == Option.Type.BOOLEAN ? new String[] { "ON", "OFF" } :
                     matcher.find() ? matcher.group(1).split(" ") : new String[0];
-            Option option = new Option(type, name, defaultValue, values, comment);
+            Option option;
+            if (constOption) {
+                option = new ConstOption(type, name, defaultValue, values, comment);
+            } else {
+                option = new Option(type, name, defaultValue, values, comment);
+            }
             option.addLocation(file, line);
             options.put(name, option);
         }
@@ -97,7 +106,13 @@ public class ShaderProperties {
                 if ((matcher = CONST_OPTION.matcher(line)).find()) {
                     if (!AVAILABLE_CONST_OPTIONS.contains(matcher.group(1)))
                         continue;
-                    parseOption(Option.Type.VALUE, matcher.group(1), matcher.group(2), matcher.group(3), file, lineNumber);
+
+                    String defaultValue = matcher.group(2);
+                    if ("true".equals(defaultValue) || "false".equals(defaultValue)) {
+                        parseOption(Option.Type.BOOLEAN, matcher.group(1), "true".equals(defaultValue) ? "ON" : "OFF", matcher.group(3), file, lineNumber, true);
+                    } else {
+                        parseOption(Option.Type.VALUE, matcher.group(1), defaultValue, matcher.group(3), file, lineNumber, true);
+                    }
                 } else if ((matcher = OPTION_DEFAULT_VALUE_COMMENT.matcher(line)).find()) {
                     parseOption(Option.Type.VALUE, matcher.group(1), matcher.group(2), matcher.group(3), file, lineNumber);
                 } else if ((matcher = OPTION_BOOLEAN_TRUE_COMMENT.matcher(line)).find()) {

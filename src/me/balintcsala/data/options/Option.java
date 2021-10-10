@@ -22,7 +22,7 @@ public class Option {
     public ArrayList<String> values;
     public ArrayList<FileLocation> locations = new ArrayList<>();
 
-    private String comment;
+    protected String comment;
 
     public Option(Type type, String name, String defaultValue, String[] values, String comment) {
         this.type = type;
@@ -61,16 +61,20 @@ public class Option {
         index = this.values.indexOf(defaultValue);
     }
 
+    protected void changeLine(List<String> lines, int line) {
+        if (type == Type.BOOLEAN) {
+            lines.set(line, (getCurrentValue().equals("ON") ? "" : "// ") + "#define " + name + " // " + comment);
+        } else {
+            lines.set(line, "#define " + name + " " + getCurrentValue() + " // " + comment);
+        }
+    }
+
     public void apply() {
         for (FileLocation location : locations) {
             Path path = location.file.toPath();
             try {
                 List<String> lines = Files.readAllLines(path);
-                if (type == Type.BOOLEAN) {
-                    lines.set(location.line, (getCurrentValue().equals("ON") ? "" : "// ") + "#define " + name + " // " + comment);
-                } else {
-                    lines.set(location.line, "#define " + name + " " + getCurrentValue() + " // " + comment);
-                }
+                changeLine(lines, location.line);
                 Files.write(path, lines);
             } catch (IOException e) {
                 e.printStackTrace();
