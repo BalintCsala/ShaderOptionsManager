@@ -45,11 +45,11 @@ public class Button extends JButton {
         addMouseListener(new MouseListener() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                clickListener.onClick(label, e.getButton() == MouseEvent.BUTTON1 ? MouseButton.LEFT : MouseButton.RIGHT);
             }
 
             @Override
             public void mousePressed(MouseEvent e) {
+                clickListener.onClick(label, e.getButton() == MouseEvent.BUTTON1 ? MouseButton.LEFT : MouseButton.RIGHT);
             }
 
             @Override
