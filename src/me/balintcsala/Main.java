@@ -12,6 +12,7 @@ import java.awt.event.WindowListener;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -20,7 +21,16 @@ public class Main {
 
     public static void main(String[] args) {
         JFileChooser fileChooser = new JFileChooser();
-        fileChooser.setCurrentDirectory(new File(Utils.getMinecraftPath().toFile(), "shaderpacks"));
+
+        Path minecraftPath = Utils.getMinecraftPath();
+        File fileCooserStart;
+        if (minecraftPath == null) {
+            fileCooserStart = new File("");
+        } else {
+            fileCooserStart = minecraftPath.resolve("shaderpacks").toFile();
+        }
+
+        fileChooser.setCurrentDirectory(fileCooserStart);
         fileChooser.setFileFilter(new FileFilter() {
             @Override
             public boolean accept(File f) {
