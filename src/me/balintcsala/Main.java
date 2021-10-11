@@ -97,7 +97,7 @@ public class Main {
 
             @Override
             public void windowClosed(WindowEvent e) {
-                Utils.deleteDirectory(new File("tmp"));
+                //Utils.deleteDirectory(new File("tmp"));
             }
 
             @Override

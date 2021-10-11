@@ -17,12 +17,13 @@ import java.util.regex.Pattern;
 
 public class ShaderProperties {
 
-    private static final Pattern OPTION_DEFAULT_VALUE_COMMENT = Pattern.compile("^#define\\s+(\\S+)\\s+(\\S+)\\s+//(.+)");
-    private static final Pattern OPTION_BOOLEAN_TRUE_COMMENT = Pattern.compile("^#define\\s+(\\S+)\\s+//(.+)");
-    private static final Pattern OPTION_BOOLEAN_FALSE_COMMENT = Pattern.compile("^//(?:\\s+)?#define\\s+(\\S+)\\s+//(.+)");
-    private static final Pattern OPTION_BOOLEAN_TRUE = Pattern.compile("^#define\\s+(\\S+)");
-    private static final Pattern OPTION_BOOLEAN_FALSE = Pattern.compile("^//(?:\\s+)?#define\\s+(\\S+)");
-    private static final Pattern CONST_OPTION = Pattern.compile("const\\s+\\S+\\s+(\\S+)\\s*=\\s*(-?\\d*\\.?\\d*);\\s*//(.+)");
+    private static final Pattern OPTION_DEFAULT_VALUE_COMMENT = Pattern.compile("#define\\s+(\\S+)\\s+(\\S+)\\s+//(.+)$");
+    private static final Pattern OPTION_DEFAULT_VALUE = Pattern.compile("#define\\s+(\\S+)\\s+(\\S+)\\s*$");
+    private static final Pattern OPTION_BOOLEAN_TRUE_COMMENT = Pattern.compile("#define\\s+(\\S+)\\s*//(.+)$");
+    private static final Pattern OPTION_BOOLEAN_FALSE_COMMENT = Pattern.compile("//(?:\\s+)?#define\\s+(\\S+)\\s*//(.+)$");
+    private static final Pattern OPTION_BOOLEAN_TRUE = Pattern.compile("#define\\s+(\\S+)\\s*$");
+    private static final Pattern OPTION_BOOLEAN_FALSE = Pattern.compile("//(?:\\s+)?#define\\s+(\\S+)\\s*$");
+    private static final Pattern CONST_OPTION = Pattern.compile("const\\s+\\S+\\s+(\\S+)\\s*=\\s*(-?\\d*\\.?\\d*);\\s*//(.+)$");
     private static final Pattern VALUE_LIST = Pattern.compile("(?<=\\[)(.+)(?=])");
     private static final Pattern SLIDER_EXTRACTOR = Pattern.compile("sliders\\s*=\\s*(.+)$");
 
@@ -115,14 +116,16 @@ public class ShaderProperties {
                     }
                 } else if ((matcher = OPTION_DEFAULT_VALUE_COMMENT.matcher(line)).find()) {
                     parseOption(Option.Type.VALUE, matcher.group(1), matcher.group(2), matcher.group(3), file, lineNumber);
-                } else if ((matcher = OPTION_BOOLEAN_TRUE_COMMENT.matcher(line)).find()) {
-                    parseOption(Option.Type.BOOLEAN, matcher.group(1), "ON", matcher.group(2), file, lineNumber);
+                } else if ((matcher = OPTION_DEFAULT_VALUE.matcher(line)).find()) {
+                    parseOption(Option.Type.VALUE, matcher.group(1), matcher.group(2), "", file, lineNumber);
                 } else if ((matcher = OPTION_BOOLEAN_FALSE_COMMENT.matcher(line)).find()) {
                     parseOption(Option.Type.BOOLEAN, matcher.group(1), "OFF", matcher.group(2), file, lineNumber);
-                } else if ((matcher = OPTION_BOOLEAN_TRUE.matcher(line)).find()) {
-                    parseOption(Option.Type.BOOLEAN, matcher.group(1), "ON", "", file, lineNumber);
+                } else if ((matcher = OPTION_BOOLEAN_TRUE_COMMENT.matcher(line)).find()) {
+                    parseOption(Option.Type.BOOLEAN, matcher.group(1), "ON", matcher.group(2), file, lineNumber);
                 } else if ((matcher = OPTION_BOOLEAN_FALSE.matcher(line)).find()) {
                     parseOption(Option.Type.BOOLEAN, matcher.group(1), "OFF", "", file, lineNumber);
+                } else if ((matcher = OPTION_BOOLEAN_TRUE.matcher(line)).find()) {
+                    parseOption(Option.Type.BOOLEAN, matcher.group(1), "ON", "", file, lineNumber);
                 }
                 lineNumber++;
             }

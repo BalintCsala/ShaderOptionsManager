@@ -173,6 +173,7 @@ public class Content extends JPanel {
                     if (shaderProperties.isSlider(entry.name)) {
                         row.add(new Slider(currentLanguage.getOptionName(entry.name), option.values, option.values.indexOf(option.defaultValue), option::setValue));
                     } else {
+                        System.out.println(entry.name);
                         row.add(new Button(currentLanguage.getOptionName(entry.name) + ": " + option.getCurrentValue(), (label, button) -> {
                             if (button == Button.MouseButton.LEFT) {
                                 option.nextValue();
