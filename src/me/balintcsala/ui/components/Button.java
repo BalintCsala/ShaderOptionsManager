@@ -17,11 +17,9 @@ public class Button extends JButton {
     private static ImageIcon background;
     private static ImageIcon backgroundHover;
 
-    private final ButtonClickListener clickListener;
     private final Text label;
 
     public Button(String text, ButtonClickListener clickListener) {
-        this.clickListener = clickListener;
 
         if (background == null) {
             background = new ImageIcon(getClass().getResource("/button.png"));

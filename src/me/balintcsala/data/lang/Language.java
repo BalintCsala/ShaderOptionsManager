@@ -11,7 +11,7 @@ public class Language {
 
     private HashMap<String, String> screenSubstitutions = new HashMap<>();
     private HashMap<String, String> optionSubstitutions = new HashMap<>();
-    private HashMap<String, String> valueSubstitutions = new HashMap<>();
+    private HashMap<String, HashMap<String, String>> valueSubstitutions = new HashMap<>();
 
     private Language() { }
 
@@ -39,7 +39,14 @@ public class Language {
                         language.optionSubstitutions.put(matcher.group(2), matcher.group(3));
                         break;
                     case "value":
-                        language.valueSubstitutions.put(matcher.group(2), matcher.group(3));
+                        String[] parts = matcher.group(2).split("\\.", 2);
+                        String name = parts[0];
+                        String value = parts[1];
+                        if (!language.valueSubstitutions.containsKey(name))
+                            language.valueSubstitutions.put(name, new HashMap<>());
+
+                        HashMap<String, String> container = language.valueSubstitutions.get(name);
+                        container.put(value, matcher.group(3));
                         break;
                 }
             }
@@ -58,10 +65,10 @@ public class Language {
         return id;
     }
 
-    public String getValueName(String id) {
-        if (valueSubstitutions.containsKey(id))
-            return valueSubstitutions.get(id);
-        return id;
+    public String getValueName(String id, String value) {
+        if (valueSubstitutions.containsKey(id) && valueSubstitutions.get(id).containsKey(value))
+            return valueSubstitutions.get(id).get(value);
+        return value;
     }
 
     public String getOptionName(String id) {

@@ -171,16 +171,15 @@ public class Content extends JPanel {
                 case OPTION:
                     Option option = shaderProperties.getOption(entry.name);
                     if (shaderProperties.isSlider(entry.name)) {
-                        row.add(new Slider(currentLanguage.getOptionName(entry.name), option.values, option.values.indexOf(option.defaultValue), option::setValue));
+                        row.add(new Slider(currentLanguage.getOptionName(entry.name), entry.name, option.values, option.values.indexOf(option.defaultValue), option::setValue, (id, value) -> currentLanguage.getValueName(id, value)));
                     } else {
-                        System.out.println(entry.name);
-                        row.add(new Button(currentLanguage.getOptionName(entry.name) + ": " + option.getCurrentValue(), (label, button) -> {
+                        row.add(new Button(currentLanguage.getOptionName(entry.name) + ": " + currentLanguage.getValueName(entry.name, option.getCurrentValue()), (label, button) -> {
                             if (button == Button.MouseButton.LEFT) {
                                 option.nextValue();
                             } else {
                                 option.previousValue();
                             }
-                            label.updateText(currentLanguage.getOptionName(entry.name) + ": " + option.getCurrentValue());
+                            label.updateText(currentLanguage.getOptionName(entry.name) + ": " + currentLanguage.getValueName(entry.name, option.getCurrentValue()));
                         }));
                     }
                     break;
