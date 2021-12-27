@@ -137,12 +137,12 @@ public class ShaderProperties {
     }
 
     private void parseShadersPropertiesLine(String line) {
-        if (line.startsWith("screen")) {
+        if (line.trim().startsWith("screen")) {
             Screen screen = Screen.parseScreen(line);
             if (screen == null)
                 return;
             screens.put(screen.getName(), screen);
-        } else if (line.startsWith("sliders")) {
+        } else if (line.trim().startsWith("sliders")) {
             Matcher matcher = SLIDER_EXTRACTOR.matcher(line);
             if (!matcher.find())
                 return;

@@ -37,8 +37,8 @@ public class Screen {
     private static final Pattern WILDCARD_ENTRY = Pattern.compile("\\*");
     private static final Pattern VALUE_ENTRY = Pattern.compile("(\\S+)");
 
-    private static final Pattern EXTRACT_MAIN_SCREEN_INFO = Pattern.compile("(?<=screen)\\s*=\\s*(.+)$");
-    private static final Pattern EXTRACT_SUB_SCREEN_INFO = Pattern.compile("(?<=screen\\.)([^\\s\\[]+)\\s*=\\s*(.+)$");
+    private static final Pattern EXTRACT_MAIN_SCREEN_INFO = Pattern.compile("\\s*(?<=screen)\\s*=\\s*(.+)$");
+    private static final Pattern EXTRACT_SUB_SCREEN_INFO = Pattern.compile("\\s*(?<=screen\\.)([^\\s\\[]+)\\s*=\\s*(.+)$");
 
     private final String name;
     private final ArrayList<Entry> entries = new ArrayList<>();
