@@ -40,6 +40,8 @@ public class Content extends JPanel {
     private final Text title;
     private final JPanel buttons;
 
+    private Button doneButton;
+
     public Content(ShaderProperties shaderProperties, HashMap<String, Language> languages, String shaderpackName) {
         this.shaderProperties = shaderProperties;
         this.languages = languages;
@@ -120,11 +122,12 @@ public class Content extends JPanel {
         footer.setLayout(new GridLayout(1, 2, 16, 0));
         footer.setOpaque(false);
         footer.setBorder(new EmptyBorder(0, 4, 0, 4));
-        footer.add(new Button("Reset", (label, button) -> {
+        footer.add(new Button("Generate", (label, button) -> {
             shaderProperties.reset();
             populate();
         }));
-        footer.add(new Button("Done", (label, button) -> {
+
+        doneButton = new Button("Save", (label, button) -> {
             if (screenStack.isEmpty()) {
                 shaderProperties.save();
 
@@ -135,9 +138,11 @@ public class Content extends JPanel {
 
             } else {
                 currentScreen = screenStack.pop();
+                doneButton.setLabelText(screenStack.isEmpty() ? "Generate" : "Back");
                 populate();
             }
-        }));
+        });
+        footer.add(doneButton);
         add(footer, BorderLayout.PAGE_END);
 
         buttons = new JPanel();
@@ -164,6 +169,7 @@ public class Content extends JPanel {
                 case LINK:
                     row.add(new Button(currentLanguage.getScreenName(entry.name) + "...", (label, button) -> {
                         screenStack.push(currentScreen);
+                        doneButton.setLabelText("Back");
                         currentScreen = shaderProperties.getScreen(entry.name);
                         populate();
                     }));

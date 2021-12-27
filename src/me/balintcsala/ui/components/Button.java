@@ -64,6 +64,10 @@ public class Button extends JButton {
         });
     }
 
+    public void setLabelText(String text) {
+        label.updateText(text);
+    }
+
     public interface ButtonClickListener {
 
         void onClick(Text label, MouseButton button);
