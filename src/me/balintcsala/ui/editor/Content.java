@@ -122,12 +122,12 @@ public class Content extends JPanel {
         footer.setLayout(new GridLayout(1, 2, 16, 0));
         footer.setOpaque(false);
         footer.setBorder(new EmptyBorder(0, 4, 0, 4));
-        footer.add(new Button("Generate", (label, button) -> {
+        footer.add(new Button("Reset", (label, button) -> {
             shaderProperties.reset();
             populate();
         }));
 
-        doneButton = new Button("Save", (label, button) -> {
+        doneButton = new Button("Generate", (label, button) -> {
             if (screenStack.isEmpty()) {
                 shaderProperties.save();
 
@@ -196,7 +196,6 @@ public class Content extends JPanel {
                     row.add(empty);
                     break;
                 case PROFILE:
-                    // What do <profile> entries do?
                     break;
             }
 
