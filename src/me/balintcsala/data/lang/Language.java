@@ -7,7 +7,7 @@ import java.util.regex.Pattern;
 
 public class Language {
 
-    private static final Pattern SUBSTITUTION_EXTRACTOR = Pattern.compile("^([^\\.]+)\\.([^\\s=]+)=(.+)$");
+    private static final Pattern SUBSTITUTION_EXTRACTOR = Pattern.compile("^([^\\.]+)\\.([^\\s=]+)=(.*)$");
 
     private HashMap<String, String> screenSubstitutions = new HashMap<>();
     private HashMap<String, String> optionSubstitutions = new HashMap<>();

@@ -177,7 +177,7 @@ public class Content extends JPanel {
                 case OPTION:
                     Option option = shaderProperties.getOption(entry.name);
                     if (shaderProperties.isSlider(entry.name)) {
-                        row.add(new Slider(currentLanguage.getOptionName(entry.name), entry.name, option.values, option.values.indexOf(option.defaultValue), option::setValue, (id, value) -> currentLanguage.getValueName(id, value)));
+                        row.add(new Slider(currentLanguage.getOptionName(entry.name), entry.name, option.values, option.values.indexOf(option.getCurrentValue()), option::setValue, (id, value) -> currentLanguage.getValueName(id, value)));
                     } else {
                         row.add(new Button(currentLanguage.getOptionName(entry.name) + ": " + currentLanguage.getValueName(entry.name, option.getCurrentValue()), (label, button) -> {
                             if (button == Button.MouseButton.LEFT) {
