@@ -1,4 +1,6 @@
-# Shader options manager
+# [Deprecated] Shader options manager
+
+## Iris now has built-in shader settings, please use that from here on 
 
 This program was made to let you edit shader properties when using them with Iris, since the main version lacks the built-in ability to do this and the starline fork is usually considered less stable.
 
